@@ -1,0 +1,69 @@
+#Mingxiao Liu 2021010584
+    .pos 0
+
+init:
+    irmovl  stack,%esp
+    irmovl  stack,%ebp
+    call    main
+    halt
+
+.align 4 
+# Source block 
+src:         
+    .long 0x00a         
+    .long 0x0b0         
+    .long 0xc00
+
+# Destination block 
+dest:         
+    .long 0x111         
+    .long 0x222         
+    .long 0x333
+
+main:
+    pushl   %ebp
+    rrmovl  %esp,%ebp
+    irmovl  $0x3,%edx
+    pushl   %edx
+    irmovl  dest,%edx
+    pushl   %edx
+    irmovl  src,%edx
+    pushl   %edx
+    call    xchg_block
+    rrmovl  %ebp,%esp
+    popl    %ebp
+    ret
+
+xchg_block:
+    pushl   %ebp
+    rrmovl  %esp,%ebp
+    pushl   %esi
+    pushl   %edi
+    pushl   %ebx
+    mrmovl  0x8(%ebp),%esi
+    mrmovl  0xc(%ebp),%edi
+    mrmovl  0x10(%ebp),%ecx   
+    xorl    %ebx,%ebx
+    andl    %ecx,%ecx
+    jmp     test
+loop:
+    mrmovl  (%esi),%eax
+    xorl    %eax,%ebx
+    rmxchg  %eax,(%edi)
+    rmmovl  %eax,(%esi)
+    iaddl   $0x4,%esi
+    iaddl   $0x4,%edi
+    irmovl  $0x1,%edx
+    subl    %edx,%ecx
+test:
+    jg      loop
+    rrmovl  %ebx,%eax 
+    popl    %ebx
+    popl    %edi
+    popl    %esi
+    popl    %ebp
+    ret   
+
+    .pos 0x100
+stack: 
+

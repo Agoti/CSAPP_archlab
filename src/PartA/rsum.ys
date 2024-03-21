@@ -1,0 +1,54 @@
+#Mingxiao Liu 2021010584
+    .pos 0
+
+init:
+    irmovl  stack,%esp
+    irmovl  stack,%ebp
+    call    main
+    halt
+
+# Sample linked list 
+    .align 4
+ele1:    
+    .long 0x00a         
+    .long ele2 
+ele2:  
+    .long 0x0b0         
+    .long ele3 
+ele3:     
+    .long 0xc00         
+    .long 0
+
+main:
+    pushl   %ebp
+    rrmovl  %esp,%ebp
+    irmovl  ele1,%edx
+    pushl   %edx
+    call    rsum_list
+    rrmovl  %ebp,%esp
+    popl    %ebp
+    ret
+
+rsum_list:
+    pushl   %ebp
+    rrmovl  %esp,%ebp
+    mrmovl  0x8(%ebp),%ecx
+    xorl    %eax,%eax
+    andl    %ecx,%ecx
+    jne     else
+    jmp     exit
+else:
+    mrmovl  (%ecx),%eax
+    pushl   %eax
+    mrmovl  0x4(%ecx),%eax
+    pushl   %eax
+    call    rsum_list
+    mrmovl  0xfffffffc(%ebp),%edx
+    addl    %edx,%eax
+exit:
+    rrmovl  %ebp,%esp
+    popl    %ebp
+    ret
+
+    .pos 0x100
+stack: 
